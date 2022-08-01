@@ -13,6 +13,14 @@ export class Employee extends AbstractEntity {
     public department: Department;
     @Column({ nullable: false })
     public departmentId: string;
+    @Column({ nullable: false })
+    public role: string;
+    @Column({ nullable: false })
+    public experience: string;
+    @Column({ nullable: false })
+    public status: string;
+    @Column({ nullable: false })
+    public doj: string;
 
 }
 
