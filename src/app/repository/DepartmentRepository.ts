@@ -21,9 +21,7 @@ export class DepartmentRespository {
         const departmentRepo = getConnection().getRepository(Department);
         const updateDepartmentDetails = await departmentRepo.update(
             { id: id, deletedAt: null },
-            {
-                name: departmentDetails.name ? departmentDetails.name : undefined,
-            }
+            departmentDetails
         );
         return updateDepartmentDetails;
     }

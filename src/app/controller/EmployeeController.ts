@@ -3,6 +3,10 @@ import { NextFunction, Response } from "express";
 import RequestWithUser from "../util/rest/request";
 import APP_CONSTANTS from "../constants";
 import { EmployeeService } from "../service/EmployeeService";
+import validationMiddleware from "../middleware/validationMiddleware";
+import { CreateEmployeeDto } from "../dto/createEmployee";
+import { UpdateEmployeeDto } from "../dto/updateEmployee";
+import { paramsDto } from "../dto/params";
 
 class EmployeeController extends AbstractController {
   constructor(private employeeService: EmployeeService) {
@@ -16,12 +20,17 @@ class EmployeeController extends AbstractController {
     this.router.get(`${this.path}`, this.employeeResponse);
     this.router.post(
       `${this.path}`,
-      // validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
+      validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
       // this.asyncRouteHandler(this.createEmployee)
       this.createEmployee
     );
     this.router.get(`${this.path}/:id`, this.getEmployeeById);
-    this.router.put(`${this.path}/:id`, this.updateEmployeeById);
+
+    this.router.put(`${this.path}/:id`, 
+    validationMiddleware(paramsDto, APP_CONSTANTS.params),
+    validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),
+    this.updateEmployeeById);
+
     this.router.delete(`${this.path}/:id`, this.deleteEmployeeById);
   }
 
@@ -31,7 +40,9 @@ class EmployeeController extends AbstractController {
     next: NextFunction
   ) => {
     try {
+
       const data = await this.employeeService.createEmployee(request.body);
+     
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );

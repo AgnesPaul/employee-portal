@@ -17,16 +17,11 @@ export class EmployeeRespository {
         return employeeRepo.findOne(id);
     }
 
-    public async updateEmployeeDetails(employeeId: string, employeeDetails: any) {
+    public async updateEmployeeDetails(employeeId: string, employeeDetails:Employee) {
         const employeeRepo = getConnection().getRepository(Employee);
         const updateEmployeeDetails = await employeeRepo.update(
             { id: employeeId, deletedAt: null },
-            {
-                name: employeeDetails.name ? employeeDetails.name : undefined,
-                departmentId: employeeDetails.departmentId
-                    ? employeeDetails.departmentId
-                    : undefined,
-            }
+            employeeDetails
         );
         return updateEmployeeDetails;
     }

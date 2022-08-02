@@ -29,12 +29,10 @@ export class DepartmentService {
 
     public async updateDepartmentById(id: string, departmentDetails: any) {
         try {
-            const updatedDepartment = plainToClass(Department, {
-                name: departmentDetails.name,
-            });
+            
             const save = await this.departmentRepo.updateDepartmentDetails(
                 id,
-                updatedDepartment
+                departmentDetails
             );
             return save;
         } catch (err) {
