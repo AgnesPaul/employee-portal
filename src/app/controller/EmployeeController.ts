@@ -7,6 +7,7 @@ import validationMiddleware from "../middleware/validationMiddleware";
 import { CreateEmployeeDto } from "../dto/createEmployee";
 import { UpdateEmployeeDto } from "../dto/updateEmployee";
 import { paramsDto } from "../dto/params";
+import authorize from "../middleware/authorize";
 
 class EmployeeController extends AbstractController {
   constructor(private employeeService: EmployeeService) {
@@ -17,21 +18,36 @@ class EmployeeController extends AbstractController {
   }
 
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, this.employeeResponse);
+    this.router.get(`${this.path}`,
+    authorize(["admin","dev"]),
+    this.employeeResponse);
+
     this.router.post(
       `${this.path}`,
       validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
       // this.asyncRouteHandler(this.createEmployee)
       this.createEmployee
     );
-    this.router.get(`${this.path}/:id`, this.getEmployeeById);
+    this.router.get(`${this.path}/:id`, 
+    authorize(["admin","dev"]),
+    validationMiddleware(paramsDto, APP_CONSTANTS.params),
+    this.getEmployeeById);
 
     this.router.put(`${this.path}/:id`, 
+    authorize(["admin"]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),
     this.updateEmployeeById);
 
-    this.router.delete(`${this.path}/:id`, this.deleteEmployeeById);
+    this.router.delete(`${this.path}/:id`, 
+    authorize(["admin"]),
+    validationMiddleware(paramsDto, APP_CONSTANTS.params),
+    this.deleteEmployeeById);
+
+    this.router.post(
+      `${this.path}/login`,
+      this.login
+    );
   }
 
   private createEmployee = async (
@@ -117,6 +133,26 @@ class EmployeeController extends AbstractController {
     } catch (error) {
       return next(error);
     }
+  };
+
+  private login = async (
+    request: RequestWithUser,
+    response: Response,
+    next: NextFunction
+  ) => {
+    try{
+      const loginData = request.body;
+    const loginDetail = await this.employeeService.employeeLogin(
+      loginData.username.toLowerCase(),
+      loginData.password
+    );
+    response.send(
+      this.fmt.formatResponse(loginDetail, Date.now() - request.startTime, "OK")
+    );
+    }catch(err){
+      next(err)
+    }
+    
   };
 }
 
