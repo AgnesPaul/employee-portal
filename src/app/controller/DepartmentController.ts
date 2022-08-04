@@ -8,36 +8,35 @@ import { CreateDepartmentDto } from "../dto/createDepartment";
 import { UpdateDepartmentDto } from "../dto/updateDepartment";
 import { paramsDto } from "../dto/params";
 import authorize from "../middleware/authorize";
+import { Department } from "../entities/Department";
 
 class DepartmentController extends AbstractController {
   constructor(private departmentService: DepartmentService) {
-
     super(`${APP_CONSTANTS.apiPrefix}/department`);
-    this.initializeRoutes();
-    
+    this.initializeRoutes();   
   }
 
   protected initializeRoutes() {
-    this.router.get(`${this.path}`, this.departmentResponse);
+    this.router.get(`${this.path}`, this.getAllDepartments);
 
     this.router.post(
       `${this.path}`,
       validationMiddleware(CreateDepartmentDto, APP_CONSTANTS.body),
-      this.createDepartment
-    );
+      this.createDepartment);
+
     this.router.get(`${this.path}/:id`, 
-    authorize(["admin","dev"]),
+    authorize([APP_CONSTANTS.admin,APP_CONSTANTS.dev]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     this.getDepartmentById);
 
     this.router.put(`${this.path}/:id`, 
-    authorize(["admin"]),
+    authorize([APP_CONSTANTS.admin]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     validationMiddleware(UpdateDepartmentDto, APP_CONSTANTS.body),
     this.updateDepartmentById);
 
     this.router.delete(`${this.path}/:id`, 
-    authorize(["admin"]),
+    authorize([APP_CONSTANTS.admin]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     this.deleteDepartmentById);
   }
@@ -57,9 +56,9 @@ class DepartmentController extends AbstractController {
     }
   }
 
-  private departmentResponse = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+  private getAllDepartments = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
-      const data: any = await this.departmentService.getAllDepartments();
+      const data: Department[] = await this.departmentService.getAllDepartments();
       response.status(200);
       response.send(this.fmt.formatResponse(data, Date.now() - request.startTime, "OK", 1));
     } catch (error) {

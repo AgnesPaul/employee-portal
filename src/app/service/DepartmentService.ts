@@ -1,4 +1,5 @@
-import { plainToClass } from "class-transformer";
+import { CreateDepartmentDto } from "../dto/createDepartment";
+import { UpdateDepartmentDto } from "../dto/updateDepartment";
 import { Department } from "../entities/Department";
 import EntityNotFoundException from "../exception/EntityNotFoundException";
 import HttpException from "../exception/HttpException";
@@ -9,30 +10,32 @@ export class DepartmentService {
     constructor(private departmentRepo: DepartmentRespository) {
 
     }
-    async getAllDepartments() {
+    async getAllDepartments() : Promise<Department[]>{
         return await this.departmentRepo.getAllDepartments();
     }
 
-    public async createDepartment(departmentDetails: any) {
+    public async createDepartment(departmentDetails: CreateDepartmentDto) : Promise<Department> {
         try {
-            const newDepartment = plainToClass(Department, {
-                name: departmentDetails.name,
-            });
-            const save = await this.departmentRepo.saveDepartmentDetails(newDepartment);
+            const save = await this.departmentRepo.saveDepartmentDetails(departmentDetails);
             return save;
         } catch (err) {
             throw new HttpException(400, "Failed to create department", "CREATE_API_FAILED");
         }
     }
 
-    async getDepartmentById(id: string) {
-        const department=await this.departmentRepo.getDepartmentById(id);
+    async getDepartmentById(id: string) : Promise<Department>{
+        const department=await this.getDepartmentById(id);
         if(!department){
             throw(new EntityNotFoundException(ErrorCodes.DEPARTMENT_WITH_ID_NOT_FOUND))
         }
+        return department
     }
 
-    public async updateDepartmentById(id: string, departmentDetails: any) {
+    public async updateDepartmentById(id: string, departmentDetails: UpdateDepartmentDto) {
+        const department = await this.getDepartmentById(id)
+        if(!department){
+            throw(new EntityNotFoundException(ErrorCodes.DEPARTMENT_WITH_ID_NOT_FOUND))
+        }
         try {        
             const save = await this.departmentRepo.updateDepartmentDetails(
                 id,
@@ -44,7 +47,11 @@ export class DepartmentService {
         }
     }
 
-    public async softDeleteDepartmentById(id: string) {
-        return await this.departmentRepo.softDeleteDepartmentById(id);
+    public async softDeleteDepartmentById(id: string): Promise<void> {
+        const department=await this.getDepartmentById(id);
+        if(!department){
+            throw(new EntityNotFoundException(ErrorCodes.DEPARTMENT_WITH_ID_NOT_FOUND))
+        }
+        await this.departmentRepo.softDeleteDepartmentById(id);
     }
 }

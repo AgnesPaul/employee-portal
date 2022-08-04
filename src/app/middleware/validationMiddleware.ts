@@ -1,6 +1,5 @@
 import { plainToClass } from "class-transformer";
 import { validate, ValidationError } from "class-validator";
-import { Request } from "express";
 import * as express from "express";
 import HttpException from "../exception/HttpException";
 import APP_CONSTANTS from "../constants";
@@ -14,10 +13,10 @@ import { ErrorCodes } from "../util/errorCode";
 function validationMiddleware<T>(type: any, parameter: string, skipMissingProperties = false): express.RequestHandler {
   return (req, res, next) => {
     let requestBody : any;
-    if(parameter === 'body'){
+    if(parameter === APP_CONSTANTS.body){
     requestBody = plainToClass(type, req.body);
     }
-    else if(parameter === 'params'){
+    else if(parameter === APP_CONSTANTS.params){
       requestBody = plainToClass(type, req.params);
     }
     validate(
@@ -26,9 +25,8 @@ function validationMiddleware<T>(type: any, parameter: string, skipMissingProper
         if (errors.length > 0) {
           const errorDetail = ErrorCodes.VALIDATION_ERROR;
           next(new HttpException(400, errorDetail.MESSAGE, errorDetail.CODE, errors));
-          //next(errors);
         } else {
-          if(parameter === 'body'){
+          if(parameter === APP_CONSTANTS.body){
              req.body = requestBody;
             }
           next();

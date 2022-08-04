@@ -1,13 +1,13 @@
 import HttpException from "./HttpException";
-import { CustomError } from "../util/errorCode";
+import { ErrorCodes } from "../util/errorCode";
 
 /**
  * This exception can use used in case an entity is not found.
  */
 class IncorrectUsernameOrPasswordException extends HttpException {
 
-  constructor(error: CustomError) {
-    super(400, error.MESSAGE, error.CODE);
+  constructor() {
+    super(400, ErrorCodes.INCORRECT_USERNAME_OR_PASSWORD.MESSAGE, ErrorCodes.INCORRECT_USERNAME_OR_PASSWORD.CODE);
   }
 }
 

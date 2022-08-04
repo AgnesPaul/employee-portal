@@ -1,5 +1,6 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from "typeorm";
+import { Entity,  PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { AbstractEntity } from "./AbstractEntity";
+import { Address } from "./Address";
 import { Department } from "./Department";
 
 @Entity("employee")
@@ -34,6 +35,10 @@ export class Employee extends AbstractEntity {
     
     @Column({ nullable: false})
     public password: string;
+
+    @OneToOne(() => Address, { cascade: true })
+    @JoinColumn()
+    public address: Address;
    
 
 }

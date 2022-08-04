@@ -1,13 +1,15 @@
 import { getConnection } from "typeorm";
+import { CreateDepartmentDto } from "../dto/createDepartment";
+import { UpdateDepartmentDto } from "../dto/updateDepartment";
 import { Department } from "../entities/Department";
 
 export class DepartmentRespository {
-    async getAllDepartments() {
+    async getAllDepartments() : Promise<Department[]>{
         const departmentRepo = getConnection().getRepository(Department);
         return departmentRepo.find();
     }
 
-    public async saveDepartmentDetails(departmentDetails: Department) {
+    public async saveDepartmentDetails(departmentDetails: CreateDepartmentDto): Promise<Department> {
         const departmentRepo = getConnection().getRepository(Department);
         return departmentRepo.save(departmentDetails);
     }
@@ -17,7 +19,7 @@ export class DepartmentRespository {
         return departmentRepo.findOne(id);
     }
 
-    public async updateDepartmentDetails(id: string, departmentDetails: any) {
+    public async updateDepartmentDetails(id: string, departmentDetails: UpdateDepartmentDto) {
         const departmentRepo = getConnection().getRepository(Department);
         const updateDepartmentDetails = await departmentRepo.update(
             { id: id, deletedAt: null },
@@ -26,7 +28,7 @@ export class DepartmentRespository {
         return updateDepartmentDetails;
     }
 
-    public async softDeleteDepartmentById(id: string) {
+    public async softDeleteDepartmentById(id: string){
         const departmentRepo = getConnection().getRepository(Department);
         return departmentRepo.softDelete({
             id

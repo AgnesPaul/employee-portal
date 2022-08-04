@@ -11,36 +11,33 @@ import authorize from "../middleware/authorize";
 
 class EmployeeController extends AbstractController {
   constructor(private employeeService: EmployeeService) {
-
     super(`${APP_CONSTANTS.apiPrefix}/employee`);
-    this.initializeRoutes();
-    
+    this.initializeRoutes();  
   }
 
   protected initializeRoutes() {
     this.router.get(`${this.path}`,
-    authorize(["admin","dev"]),
-    this.employeeResponse);
+    authorize([APP_CONSTANTS.admin,APP_CONSTANTS.dev]),
+    this.getAllEmployees);
 
     this.router.post(
       `${this.path}`,
       validationMiddleware(CreateEmployeeDto, APP_CONSTANTS.body),
-      // this.asyncRouteHandler(this.createEmployee)
-      this.createEmployee
-    );
+      this.createEmployee);
+
     this.router.get(`${this.path}/:id`, 
-    authorize(["admin","dev"]),
+    authorize([APP_CONSTANTS.admin,APP_CONSTANTS.dev]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     this.getEmployeeById);
 
     this.router.put(`${this.path}/:id`, 
-    authorize(["admin"]),
+    authorize([APP_CONSTANTS.admin]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     validationMiddleware(UpdateEmployeeDto, APP_CONSTANTS.body),
     this.updateEmployeeById);
 
     this.router.delete(`${this.path}/:id`, 
-    authorize(["admin"]),
+    authorize([APP_CONSTANTS.admin]),
     validationMiddleware(paramsDto, APP_CONSTANTS.params),
     this.deleteEmployeeById);
 
@@ -57,8 +54,7 @@ class EmployeeController extends AbstractController {
   ) => {
     try {
 
-      const data = await this.employeeService.createEmployee(request.body);
-     
+      const data = await this.employeeService.createEmployee(request.body); 
       response.send(
         this.fmt.formatResponse(data, Date.now() - request.startTime, "OK")
       );
@@ -67,7 +63,7 @@ class EmployeeController extends AbstractController {
     }
   }
 
-  private employeeResponse = async (request: RequestWithUser, response: Response, next: NextFunction) => {
+  private getAllEmployees = async (request: RequestWithUser, response: Response, next: NextFunction) => {
     try {
       const data: any = await this.employeeService.getAllEmployees();
       response.status(200);
