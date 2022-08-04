@@ -44,6 +44,7 @@ export class EmployeeService {
     }
     try {
       employeeDetails.address.id = employee.address.id;
+      employeeDetails = { ...employeeDetails, password: employeeDetails.password ? await bcrypt.hash(employeeDetails.password, 10) : '', }
       const save = await this.employeeRepo.updateEmployeeDetails(
         id,
         employeeDetails
